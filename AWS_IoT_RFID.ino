@@ -1,3 +1,20 @@
+/*
+  [2020-11-27] 아두이노 한 일
+  - RFID DB에 올리기 성공.
+  
+  **앞으로 해야 할 일
+  <고칠 것>
+  - 시리얼 창에서 아래와 같은 형식(temperatrue..)으로 나오는 원인 알아내고 고치기
+  Publishing send message:{"state":{"reported":{"RFID":"2538327","State":"0"}}}
+Received a message with topic '$aws/things/MyMKRWiFi1010/shadow/update/delta', length 121 bytes:
+{"version":698,"timestamp":1606453314,"state":{"temperature":"25.2"},"metadata":{"temperature":{"timestamp":1605683738}}}
+
+
+  <추가할 것>
+  - 버튼 눌렸을 때, CLOSE로 인식해서 0보내고, 버튼 안 눌렸을 때, OPEN으로 인식해서 1 보내주기
+  - [비연결모드] 묶이는 신호받았을 때 RFID 값 안 올리고, 풀리는 신호받았을 때 다시 RFID 값 올라가도록
+*/
+
 #include <ArduinoBearSSL.h>
 #include <ArduinoECCX08.h>
 #include <ArduinoMqttClient.h>
