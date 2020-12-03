@@ -1,6 +1,7 @@
 #include <ArduinoBLE.h>
 BLEService newService("180A"); // creating the service
 
+//우리는 RFID값을 읽어서 보내주기만 하면 되니까 randomReading에 뒤에 있는 BLERead | BLENotify 이것만 사용하면 될 듯!
 BLEUnsignedCharCharacteristic randomReading("2A58", BLERead | BLENotify); // creating the Analog Value characteristic
 BLEByteCharacteristic switchChar("2A57", BLERead | BLEWrite); // creating the LED characteristic
 
