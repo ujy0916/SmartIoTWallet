@@ -27,5 +27,5 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
-    //implementation 'com.akexorcist:bluetoothspp:1.0.0' //블루투스 관련 추가함.
+    implementation'com.vise.xiaoyaoyou:baseble:2.0.5' //블루투스 관련 추가함.
 }
