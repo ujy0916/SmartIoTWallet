@@ -35,18 +35,19 @@ public class RegisterCardInfoHandler implements RequestHandler<Document, String>
         String timeString = sdf.format(new java.util.Date (document.timestamp*1000));
         //*1000한 이유: 1초는 1000ms이기 때문.
 
-        /*// temperature와 LED 값이 이전상태와 동일한 경우 테이블에 저장하지 않고 종료 
-        if (document.current.state.reported.Cardrfid.equals(document.previous.state.reported.Cardrfid) && 
-                document.current.state.reported.CardName.equals(document.previous.state.reported.CardName)) {
+        // temperature와 LED 값이 이전상태와 동일한 경우 테이블에 저장하지 않고 종료 
+        if (document.current.state.reported.Card_rfid.equals(document.previous.state.reported.Card_rfid) && 
+                document.current.state.reported.Card_name.equals(document.previous.state.reported.Card_name)) {
                 return null;
-        }*/
+        }
 
         return this.dynamoDb.getTable(DYNAMODB_TABLE_NAME)
-                .putItem(new PutItemSpec().withItem(new Item().withPrimaryKey("Card_rfid", document.current.state.reported.Card_rfid)
-                		//.withLong("time", document.timestamp)
+                .putItem(new PutItemSpec().withItem(new Item().withPrimaryKey("deviceId", document.device)
+                		.withLong("time", document.timestamp)
                         //.withString("temperature", document.current.state.reported.temperature)
                         //.withString("LED", document.current.state.reported.LED)
                 		.withString("Card_name",document.current.state.reported.Card_name)
+                		.withString("Card_rfid", document.current.state.reported.Card_rfid)
                         .withString("timestamp",timeString)))
                 .toString();
     }
@@ -63,7 +64,7 @@ class Document {
     public Thing previous;       
     public Thing current;
     public long timestamp;
-    //public String device;       // AWS IoT에 등록된 사물 이름 
+    public String device;       // AWS IoT에 등록된 사물 이름 
 }
 
 class Thing {
