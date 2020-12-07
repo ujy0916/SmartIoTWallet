@@ -14,6 +14,12 @@ import com.amazonaws.services.dynamodbv2.model.ConditionalCheckFailedException;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 
+/*
+ * RegisterCardInfoFunction
+ * 어플로 입력받은 카드 정보를 DynamoDB(Card_value)에 올려주는 람다함수.
+ * IoT규칙(CardRule)과 연결되어 있음.
+ * */
+
 public class RegisterCardInfoHandler implements RequestHandler<Document, String> {
     private DynamoDB dynamoDb;
     private String DYNAMODB_TABLE_NAME = "Card_value";
@@ -33,7 +39,6 @@ public class RegisterCardInfoHandler implements RequestHandler<Document, String>
         SimpleDateFormat sdf = new SimpleDateFormat ( "yyyy-MM-dd HH:mm:ss");
         sdf.setTimeZone(TimeZone.getTimeZone("Asia/Seoul"));
         String timeString = sdf.format(new java.util.Date (document.timestamp*1000));
-        //*1000한 이유: 1초는 1000ms이기 때문.
 
         // temperature와 LED 값이 이전상태와 동일한 경우 테이블에 저장하지 않고 종료 
         if (document.current.state.reported.Card_rfid.equals(document.previous.state.reported.Card_rfid) && 
@@ -48,7 +53,7 @@ public class RegisterCardInfoHandler implements RequestHandler<Document, String>
                         //.withString("LED", document.current.state.reported.LED)
                 		.withString("Card_name",document.current.state.reported.Card_name)
                 		.withString("Card_rfid", document.current.state.reported.Card_rfid)
-                		.withString("Card_state", "IN")
+                		.withString("Card_state", "IN") //12.6 추가한 부분
                         .withString("timestamp",timeString)))
                 .toString();
     }

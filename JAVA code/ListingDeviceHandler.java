@@ -9,6 +9,11 @@ import com.amazonaws.services.iot.model.ThingAttribute;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 
+/*
+ * ListThingsFunction
+ * /devices - GET - 메서드 실행
+ * */
+
 public class ListingDeviceHandler implements RequestHandler<Object, String> {
 
     @Override

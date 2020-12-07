@@ -18,7 +18,12 @@ import com.amazonaws.services.dynamodbv2.document.utils.ValueMap;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 
-public class LogDeviceHandler implements RequestHandler<Event, String> {
+/*
+ * GetCardNameFunction
+ * DynamoDB(Card_value)의 값을 불러오는 람다함수
+ * /devices/{device}/log - GET - 메서드 실행
+ */
+public class GetCardNameHandler implements RequestHandler<Event, String> {
 
     private DynamoDB dynamoDb;
     private String DYNAMODB_TABLE_NAME = "Card_value";

@@ -22,6 +22,11 @@ import com.amazonaws.services.dynamodbv2.document.Table;
 import com.amazonaws.services.dynamodbv2.document.ItemCollection;
 import com.amazonaws.services.dynamodbv2.document.ScanOutcome;
 
+/*
+ * CompareCardValueFunction
+ * [TEST]DynamoDB(RFID_value)에서 table 가져와 출력하는 실험
+ */
+
 public class GetRFIDInfoFunctionHandler implements RequestHandler<Document, String> {
 
 	private DynamoDB dynamoDB;

@@ -6,6 +6,10 @@ import com.amazonaws.services.iotdata.model.GetThingShadowRequest;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 
+/*
+ * GetDeviceFunction
+ * /devices/{device} - GET - 메서드 실행
+ * */
 public class GetDeviceHandler implements RequestHandler<Event, String> {
 
     @Override

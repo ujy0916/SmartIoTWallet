@@ -1,0 +1,28 @@
+1. CompareCardValueFunctionHandler (CompareCardValueFunction)
+[TEST]DynamoDB(RFID_value)에서 table 가져와 출력하는 실험
+
+2. GetCardNameHandler (GetCardNameFunction)
+DynamoDB(Card_value)의 값을 불러오는 람다함수
+/devices/{device}/log - GET - 메서드 실행
+
+3. GetDeviceHandler (GetDeviceFunction)
+/devices/{device} - GET - 메서드 실행
+
+4. GetRFIDLogHandler(GetRFIDLogFunction)
+해당 카드(rfid)의 DynamoDB(RFID_value) 값을 불러오는 람다함수.
+/devices/{device}/value - GET - 메서드 실행
+
+5. ListingDeviceHandler(ListThingsFunction)
+/devices - GET - 메서드 실행
+
+6. RegisterCardInfoHandler(RegisterCardInfoFunction)
+어플로 입력받은 카드 정보를 DynamoDB(Card_value)에 올려주는 람다함수.
+IoT규칙(CardRule)과 연결되어 있음.
+
+7. UpdateDeviceHandler
+어플에서 디바이스 섀도우를 변경할 수 있도록 하는 람다함수
+/devices/{device} - PUT - 메서드 실행
+
+8. UploadRFIDValueHandler (UploadRFIDValueFunction)
+RFID, state, time, timestamp 값을 DynamoDB(RFID_Value)에 올려주는 람다함수.
+IoT규칙(RFIDRule)과 연결되어 있음.

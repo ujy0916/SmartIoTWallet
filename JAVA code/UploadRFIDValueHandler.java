@@ -13,12 +13,15 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 
 /*
- * DynamoDB(RFID_Value)에 RFID와 LED, Timestamp 값을 올려주는 람다함수.
+ * UploadRFIDValueFunction
+ * RFID, state, time, timestamp 값을 DynamoDB(RFID_Value)에 올려주는 람다함수.
+ * IoT규칙(RFIDRule)과 연결되어 있음.
  */
 
 public class UploadRFIDValueHandler implements RequestHandler<Document, String> {
     private DynamoDB dynamoDb;
-    private String DYNAMODB_TABLE_NAME = "RFID_Value";
+    private String DYNAMODB_TABLE_NAME = "RFID_value"; //RFID 값
+    //private String DYNAMODB_TABLE_NAME2 = "Card_value"; //CARD 값
 
     @Override
     public String handleRequest(Document input, Context context) {
@@ -47,9 +50,9 @@ public class UploadRFIDValueHandler implements RequestHandler<Document, String> 
 
         return this.dynamoDb.getTable(DYNAMODB_TABLE_NAME)
                 .putItem(new PutItemSpec().withItem(new Item().withPrimaryKey("RFID", document.current.state.reported.RFID)
-                        .withLong("time", document.timestamp)
-                        .withString("State", state)
-                        .withString("timestamp",timeString)))
+                        .withLong("time_", document.timestamp)
+                        .withString("State_", state)
+                        .withString("timestamp_",timeString)))
                 .toString();
     }
 

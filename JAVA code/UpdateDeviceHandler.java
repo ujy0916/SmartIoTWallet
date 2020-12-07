@@ -11,6 +11,11 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.fasterxml.jackson.annotation.JsonCreator;
 
+/*
+ * UpdateDeviceFunction
+ * 어플에서 디바이스 섀도우를 변경할 수 있도록 하는 람다함수
+ * /devices/{device} - PUT - 메서드 실행
+ * */
 public class UpdateDeviceHandler implements RequestHandler<Event, String> {
 
     @Override
@@ -40,7 +45,6 @@ public class UpdateDeviceHandler implements RequestHandler<Event, String> {
             tagstr += String.format("\"%s\" : \"%s\"", tags.get(i).tagName, tags.get(i).tagValue);
         }
         return String.format("{ \"state\": { \"reported\": { %s } } }", tagstr);
-        //return String.format("{ \"state\": { \"desired\": { %s } } }", tagstr);
     }
 
 }

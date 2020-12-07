@@ -18,7 +18,12 @@ import com.amazonaws.services.dynamodbv2.document.utils.ValueMap;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 
-public class LogDeviceHandler implements RequestHandler<Event, String> {
+/*
+ * GetRFIDLogFunction
+ * 해당 카드(rfid)의 DynamoDB(RFID_value) 값을 불러오는 람다함수.
+ * /devices/{device}/value - GET - 메서드 실행
+ */
+public class GetRFIDLogHandler implements RequestHandler<Event, String> {
 
     private DynamoDB dynamoDb;
     private String DYNAMODB_TABLE_NAME = "RFID_value";
