@@ -48,6 +48,7 @@ public class RegisterCardInfoHandler implements RequestHandler<Document, String>
                         //.withString("LED", document.current.state.reported.LED)
                 		.withString("Card_name",document.current.state.reported.Card_name)
                 		.withString("Card_rfid", document.current.state.reported.Card_rfid)
+                		.withString("Card_state", "IN")
                         .withString("timestamp",timeString)))
                 .toString();
     }
