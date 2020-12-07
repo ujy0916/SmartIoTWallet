@@ -2,6 +2,7 @@ package com.amazonaws.lambda.demo;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.TimeZone;
 
@@ -36,19 +37,18 @@ public class GetCardNameHandler implements RequestHandler<Event, String> {
 
         long from=0;
         long to=0;
-        
             SimpleDateFormat sdf = new SimpleDateFormat ( "yyyy-MM-dd HH:mm:ss");
             sdf.setTimeZone(TimeZone.getTimeZone("Asia/Seoul"));
 
             //from=2020.11.5 12:35:33, to=2020.12.31 12:35:33
             from = 1604536533;
             to = 1609374933;
-
-        QuerySpec querySpec = new QuerySpec()
+        /*QuerySpec querySpec = new QuerySpec()
                 .withKeyConditionExpression("deviceId = :v_id and #t between :from and :to")
                 .withNameMap(new NameMap().with("#t", "time"))
-                .withValueMap(new ValueMap().withString(":v_id",input.device).withNumber(":from", from).withNumber(":to", to)); 
+                .withValueMap(new ValueMap().withString(":v_id",input.device).withNumber(":from", from).withNumber(":to", to)); */
 
+        /*    
         ItemCollection<QueryOutcome> items=null;
         try {           
             items = table.query(querySpec);
@@ -58,7 +58,29 @@ public class GetCardNameHandler implements RequestHandler<Event, String> {
             System.err.println(e.getMessage());
         }
 
-        return getResponse(items);
+        return getResponse(items);*/
+            
+        //추가된 부분 (12.7)
+            HashMap<String, String> nameMap = new HashMap<String, String> ();
+            nameMap.put("#deviceId", "deviceId");  //#deviceId라는 변수를 생성 -해당 변수는 deviceId라는 값을 가짐
+            HashMap<String, Object> valueMap = new HashMap<String, Object>();
+            valueMap.put(":deviceId", "MyMKRWiFi1010"); //:deviceId라는 변수를 생성 -해당 변수는 MyMKRWiFi1010라는 값을 가짐
+            QuerySpec querySpec = new QuerySpec().withKeyConditionExpression("#deviceId = :deviceId")  
+                  //"#deviceId = :deviceId" 이 말은 결국 deviceId가 MyMKRWiFi1010인 값을 찾는 것임
+                  .withNameMap(nameMap).withValueMap(valueMap);
+            
+            ItemCollection<QueryOutcome> items = null;
+            //Iterator<Item> iterator = null;
+            //Item item = null;
+            
+            try {
+                items = table.query(querySpec);  //해당 쿼리에 맞는 문자들을 모조리 items에 넣음
+                }catch (Exception e) {
+                    System.err.println("Unable to query movies from 1985");
+                    System.err.println(e.getMessage());
+                }     
+            
+            return getResponse(items);  //값을 다시 aws로 전송 ->이후 안드로이드의 getCards.class가 받아서 이를 처리
     }
 
     private String getResponse(ItemCollection<QueryOutcome> items) {
