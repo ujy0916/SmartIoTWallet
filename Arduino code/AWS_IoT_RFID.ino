@@ -12,6 +12,7 @@
 #define RST_PIN         6           // Configurable, see typical pin layout above
 #define SS_PIN           7           // Configurable, see typical pin layout above
 
+#define btn           11 //버튼
 // 라이브러리 생성
 MFRC522 rfid(SS_PIN, RST_PIN); // Instance of the class
 
@@ -19,7 +20,10 @@ MFRC522::MIFARE_Key key;
 
 //이전 ID와 비교하기위한 변수
 byte nuidPICC[4];
-//-->여기까지 추가 완료
+
+int state = 0; //지갑 상태(OPEN/CLOSE)
+int dec = 0; //rfid
+int count = 5; //지갑 닫힌 시간
 
 #include <ArduinoJson.h>
 //#include "Led.h"
@@ -44,6 +48,7 @@ void setup() {
 
   SPI.begin(); // SPI 시작
   rfid.PCD_Init(); // RFID 시작
+  pinMode(btn, INPUT); //버튼
 
   //초기 키 ID 초기화
   for (byte i = 0; i < 6; i++) {
@@ -83,6 +88,18 @@ void loop() {
   if (millis() - lastMillis > 5000) {
     lastMillis = millis();
     char payload[512];
+
+    //버튼
+    if(digitalRead(btn) == HIGH){state = 1;} //OPEN
+    else if(digitalRead(btn) == LOW){
+      delay(1000);
+      count--;
+    }
+    if (count == 0){
+      state = 0; //CLOSE
+      count = 5;
+    }
+    
     getRFID_Status(payload);
     sendMessage(payload);
   }
@@ -132,8 +149,17 @@ void getRFID_Status(char* payload) {
   
   // 카드가 인식되었다면 다음으로 넘어가고 아니면 더이상 
   // 실행 안하고 리턴
-  if ( ! rfid.PICC_IsNewCardPresent())
+  if ( ! rfid.PICC_IsNewCardPresent()){
+    /* 
+     *  지갑이 닫히면 올라가도록하는 조건문
+     *  카드가 한 번도 찍히지 않은 상황에선 올라가지 않도록 함*/
+    if(dec != 0 && state == 0){
+      Serial.print("state2:");Serial.println(state);
+      sprintf(payload,"{\"state\":{\"reported\":{\"RFID\":\"%d\",\"State\":\"%d\"}}}",dec,state);
+    }
+    
     return;
+  }
 
   // ID가 읽혀졌다면 다음으로 넘어가고 아니면 더이상 
   // 실행 안하고 리턴
@@ -158,8 +184,8 @@ void getRFID_Status(char* payload) {
   //모니터 출력
   Serial.println(F("The NUID tag is:"));
   String Dec = printDec(rfid.uid.uidByte, rfid.uid.size);
-  int dec = Dec.toInt();
-  int state = 0;
+  dec = Dec.toInt();
+  
   sprintf(payload,"{\"state\":{\"reported\":{\"RFID\":\"%d\",\"State\":\"%d\"}}}",dec,state);
 
   // PICC 종료
@@ -209,22 +235,6 @@ void onMessageReceived(int messageSize) {
   Serial.println(buffer);
   Serial.println();
 
-  // JSon 형식의 문자열인 buffer를 파싱하여 필요한 값을 얻어옴.
-  // 디바이스가 구독한 토픽이 $aws/things/MyMKRWiFi1010/shadow/update/delta 이므로,
-  // JSon 문자열 형식은 다음과 같다.
-  // {
-  //    "version":391,
-  //    "timestamp":1572784097,
-  //    "state":{
-  //        "LED":"ON"
-  //    },
-  //    "metadata":{
-  //        "LED":{
-  //          "timestamp":15727840
-  //         }
-  //    }
-  // }
-  //
   DynamicJsonDocument doc(1024);
   deserializeJson(doc, buffer);
   JsonObject root = doc.as<JsonObject>();
@@ -233,16 +243,4 @@ void onMessageReceived(int messageSize) {
   //Serial.println(led);
   
   char payload[512];
-  /*
-  if (strcmp(led,"ON")==0) {
-    led1.on();
-    sprintf(payload,"{\"state\":{\"reported\":{\"LED\":\"%s\"}}}","ON");
-    sendMessage(payload);
-    
-  } else if (strcmp(led,"OFF")==0) {
-    led1.off();
-    sprintf(payload,"{\"state\":{\"reported\":{\"LED\":\"%s\"}}}","OFF");
-    sendMessage(payload);
-  }
-  */ 
 }
