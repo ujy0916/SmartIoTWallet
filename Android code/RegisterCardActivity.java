@@ -189,7 +189,7 @@ public class RegisterCardActivity extends AppCompatActivity {
                     String cardName_input = getCardName.getText().toString();
                     getRFIDCard =findViewById(R.id.registerCardRFID);
                     String cardRFID_input = getRFIDCard.getText().toString();
-                    cardRFID_input = cardRFID_input.split("\n")[0];
+                    cardRFID_input = cardRFID_input.split("\u0000")[0];
 
                     //카드 별칭
                     if (cardName_input != null && !cardName_input.equals("")) {
