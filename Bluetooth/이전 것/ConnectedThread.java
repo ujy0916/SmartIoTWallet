@@ -1,4 +1,4 @@
-package com.jung.android.arduinotoandroid;
+package com.jung.android.arduino_bluetooth;
 
 import android.bluetooth.BluetoothSocket;
 import android.os.Handler;
@@ -12,11 +12,9 @@ public class ConnectedThread extends Thread {
     private final BluetoothSocket mmSocket;
     private final InputStream mmInStream;
     private final OutputStream mmOutStream;
-    private final Handler mHandler;
 
-    public ConnectedThread(BluetoothSocket socket, Handler handler) {
+    public ConnectedThread(BluetoothSocket socket) {
         mmSocket = socket;
-        mHandler = handler;
         InputStream tmpIn = null;
         OutputStream tmpOut = null;
 
@@ -25,7 +23,8 @@ public class ConnectedThread extends Thread {
         try {
             tmpIn = socket.getInputStream();
             tmpOut = socket.getOutputStream();
-        } catch (IOException e) { }
+        } catch (IOException e) {
+        }
 
         mmInStream = tmpIn;
         mmOutStream = tmpOut;
@@ -40,13 +39,11 @@ public class ConnectedThread extends Thread {
             try {
                 // Read from the InputStream
                 bytes = mmInStream.available();
-                if(bytes != 0) {
+                if (bytes != 0) {
                     buffer = new byte[1024];
                     SystemClock.sleep(100); //pause and wait for rest of data. Adjust this depending on your sending speed.
                     bytes = mmInStream.available(); // how many bytes are ready to be read?
                     bytes = mmInStream.read(buffer, 0, bytes); // record how many bytes we actually read
-                    mHandler.obtainMessage(MainActivity.MESSAGE_READ, bytes, -1, buffer)
-                            .sendToTarget(); // Send the obtained bytes to the UI activity
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -61,13 +58,15 @@ public class ConnectedThread extends Thread {
         byte[] bytes = input.getBytes();           //converts entered String into bytes
         try {
             mmOutStream.write(bytes);
-        } catch (IOException e) { }
+        } catch (IOException e) {
+        }
     }
 
     /* Call this from the main activity to shutdown the connection */
     public void cancel() {
         try {
             mmSocket.close();
-        } catch (IOException e) { }
+        } catch (IOException e) {
+        }
     }
 }
