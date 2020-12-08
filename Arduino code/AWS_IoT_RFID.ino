@@ -22,8 +22,10 @@ MFRC522::MIFARE_Key key;
 byte nuidPICC[4];
 
 int state = 0; //지갑 상태(OPEN/CLOSE)
-int dec = 0; //rfid
-int count = 5; //지갑 닫힌 시간
+//int dec = 0; //rfid값.
+int dec = 1833823216; //임의의 rfid값. 블루투스 연결할 경우 필히 삭제할 것!!!!!
+int count = 3; //지갑 닫힌 시간
+int control = 1; //1은 활성화, 0은 비활성화
 
 #include <ArduinoJson.h>
 //#include "Led.h"
@@ -40,7 +42,6 @@ MqttClient    mqttClient(sslClient);
 
 unsigned long lastMillis = 0;
 
-//Led led1(LED_1_PIN);
 
 void setup() {
   Serial.begin(115200);
@@ -97,7 +98,7 @@ void loop() {
     }
     if (count == 0){
       state = 0; //CLOSE
-      count = 5;
+      count = 3;
     }
     
     getRFID_Status(payload);
@@ -146,53 +147,62 @@ void connectMQTT() {
 }
 
 void getRFID_Status(char* payload) {
-  
-  // 카드가 인식되었다면 다음으로 넘어가고 아니면 더이상 
-  // 실행 안하고 리턴
-  if ( ! rfid.PICC_IsNewCardPresent()){
-    /* 
-     *  지갑이 닫히면 올라가도록하는 조건문
-     *  카드가 한 번도 찍히지 않은 상황에선 올라가지 않도록 함*/
-    if(dec != 0 && state == 0){
-      Serial.print("state2:");Serial.println(state);
-      sprintf(payload,"{\"state\":{\"reported\":{\"RFID\":\"%d\",\"State\":\"%d\"}}}",dec,state);
+
+  // rfid가 비활성화 모드일 경우, 카드를 읽지 않도록 한다.
+  if ( control == 0 ) {
+    Serial.print("[비활성]control: ");Serial.println(control);
+    return;
+  }
+
+  else{
+    Serial.print("[활성]control: ");Serial.println(control);
+    // 카드가 인식되었다면 다음으로 넘어가고 아니면 더이상 
+    // 실행 안하고 리턴
+    if ( ! rfid.PICC_IsNewCardPresent()){
+      /* 
+       *  지갑이 닫히면 올라가도록하는 조건문
+       *  카드가 한 번도 찍히지 않은 상황에선 올라가지 않도록 함*/
+      if(dec != 0 && state == 0){
+        //Serial.print("state2:");Serial.println(state);
+        sprintf(payload,"{\"state\":{\"reported\":{\"RFID\":\"%d\",\"State\":\"%d\"}}}",dec,state);
+      }
+      
+      return;
     }
-    
-    return;
-  }
-
-  // ID가 읽혀졌다면 다음으로 넘어가고 아니면 더이상 
-  // 실행 안하고 리턴
-  if ( ! rfid.PICC_ReadCardSerial())
-    return;
-
-   Serial.print(F("PICC type: "));
-
-  //카드의 타입을 읽어온다.
-  MFRC522::PICC_Type piccType = rfid.PICC_GetType(rfid.uid.sak);
-
-  //모니터에 출력
-  Serial.println(rfid.PICC_GetTypeName(piccType));
-
-  // MIFARE 방식인지 확인하고 아니면 리턴
-  if (piccType != MFRC522::PICC_TYPE_MIFARE_MINI &&  
-    piccType != MFRC522::PICC_TYPE_MIFARE_1K &&
-    piccType != MFRC522::PICC_TYPE_MIFARE_4K) {
-    Serial.println(F("Your tag is not of type MIFARE Classic."));
-    return;
-  }
-  //모니터 출력
-  Serial.println(F("The NUID tag is:"));
-  String Dec = printDec(rfid.uid.uidByte, rfid.uid.size);
-  dec = Dec.toInt();
   
-  sprintf(payload,"{\"state\":{\"reported\":{\"RFID\":\"%d\",\"State\":\"%d\"}}}",dec,state);
-
-  // PICC 종료
-  rfid.PICC_HaltA();
-
-  // 암호화 종료(?)
-  rfid.PCD_StopCrypto1();
+    // ID가 읽혀졌다면 다음으로 넘어가고 아니면 더이상 
+    // 실행 안하고 리턴
+    if ( ! rfid.PICC_ReadCardSerial())
+      return;
+  
+     Serial.print(F("PICC type: "));
+  
+    //카드의 타입을 읽어온다.
+    MFRC522::PICC_Type piccType = rfid.PICC_GetType(rfid.uid.sak);
+  
+    //모니터에 출력
+    Serial.println(rfid.PICC_GetTypeName(piccType));
+  
+    // MIFARE 방식인지 확인하고 아니면 리턴
+    if (piccType != MFRC522::PICC_TYPE_MIFARE_MINI &&  
+      piccType != MFRC522::PICC_TYPE_MIFARE_1K &&
+      piccType != MFRC522::PICC_TYPE_MIFARE_4K) {
+      Serial.println(F("Your tag is not of type MIFARE Classic."));
+      return;
+    }
+    //모니터 출력
+    Serial.println(F("The NUID tag is:"));
+    String Dec = printDec(rfid.uid.uidByte, rfid.uid.size);
+    dec = Dec.toInt();
+    
+    sprintf(payload,"{\"state\":{\"reported\":{\"RFID\":\"%d\",\"State\":\"%d\"}}}",dec,state);
+  
+    // PICC 종료
+    rfid.PICC_HaltA();
+  
+    // 암호화 종료(?)
+    rfid.PCD_StopCrypto1();
+  }
 }
 
 //10진수로 변환하는 함수
@@ -234,13 +244,38 @@ void onMessageReceived(int messageSize) {
   buffer[count]='\0'; // 버퍼의 마지막에 null 캐릭터 삽입
   Serial.println(buffer);
   Serial.println();
-
+  // JSon 형식의 문자열인 buffer를 파싱하여 필요한 값을 얻어옴.
+  // 디바이스가 구독한 토픽이 $aws/things/MyMKRWiFi1010/shadow/update/delta 이므로,
+  // JSon 문자열 형식은 다음과 같다.
+  // {
+  //    "version":391,
+  //    "timestamp":1572784097,
+  //    "state":{
+  //        "LED":"ON"
+  //    },
+  //    "metadata":{
+  //        "LED":{
+  //          "timestamp":15727840
+  //         }
+  //    }
+  // }
+  //
+  
   DynamicJsonDocument doc(1024);
   deserializeJson(doc, buffer);
   JsonObject root = doc.as<JsonObject>();
   JsonObject state = root["state"];
-  //const char* led = state["LED"];
-  //Serial.println(led);
+  const char* DisAbled = state["DISABLED"];
   
   char payload[512];
+
+  if (strcmp(DisAbled,"abled")==0) {
+    Serial.print("DISABLED:");Serial.println(DisAbled);
+    control = 1;
+    
+  } //else if (strcmp(DisAbled,"Disabled")==0) {
+  else {
+    Serial.print("DISABLED:");Serial.println(DisAbled);
+    control = 0;
+  }
 }

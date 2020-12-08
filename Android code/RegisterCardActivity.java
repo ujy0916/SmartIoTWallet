@@ -5,14 +5,12 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.hansung.android.smartiotwalletapp.R;
-import com.hansung.android.smartiotwalletapp.ui.apicall.GetThingShadow;
-import com.hansung.android.smartiotwalletapp.ui.apicall.UpdateShadow;
+import com.hansung.android.smartiotwalletapp.ui.apicall.UpdateShadowReported;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -31,12 +29,6 @@ public class RegisterCardActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register_card);
-
-        //시작?? (여기는 무슨 역할??)
-        /*public void run() {
-            new GetThingShadow(RegisterCardActivity.this, urlStr).execute();
-        }*/
-
 
         getCardName = findViewById(R.id.registerCardName); //입력한 카드 별칭
 
@@ -73,6 +65,7 @@ public class RegisterCardActivity extends AppCompatActivity {
                         jsonArray.put(tag1);
                     }
 
+
                     if (jsonArray.length() > 0)
                         payload.put("tags", jsonArray);
                 } catch (JSONException e) {
@@ -80,23 +73,11 @@ public class RegisterCardActivity extends AppCompatActivity {
                 }
                 Log.i(TAG, "payload=" + payload);
                 if (payload.length() > 0)
-                    new UpdateShadow(RegisterCardActivity.this, urlStr).execute(payload);
+                    new UpdateShadowReported(RegisterCardActivity.this, urlStr).execute(payload);
                 else
                     Toast.makeText(RegisterCardActivity.this, "입력해주세요.", Toast.LENGTH_SHORT).show();
             }
         });
     }
-
-    /*private void clearTextView() {
-        TextView reported_ledTV = findViewById(R.id.reported_led);
-        TextView reported_tempTV = findViewById(R.id.reported_temp);
-        reported_tempTV.setText("");
-        reported_ledTV.setText("");
-
-        TextView desired_ledTV = findViewById(R.id.desired_led);
-        TextView desired_tempTV = findViewById(R.id.desired_temp);
-        desired_tempTV.setText("");
-        desired_ledTV.setText("");
-    }*/
 
 }

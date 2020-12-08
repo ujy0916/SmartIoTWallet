@@ -68,7 +68,7 @@ void loop() {
     //10진수로 출력
    String Dec = printDec(rfid.uid.uidByte, rfid.uid.size);
    //String Payload = "state:{\"reported\":{\"temperature\":\",t,led);
-   Serial.print(dec);
+   Serial.print(Dec);
 
   // 만약 바로 전에 인식한 RF 카드와 다르다면..
  /* if (rfid.uid.uidByte[0] != nuidPICC[0] || 
