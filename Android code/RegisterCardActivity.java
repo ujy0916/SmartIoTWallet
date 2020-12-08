@@ -45,7 +45,7 @@ public class RegisterCardActivity extends AppCompatActivity {
     final static String TAG = "AndroidAPITest";
 
     EditText getCardName;
-    String getRFIDCard;
+    TextView getRFIDCard;
 
     //블루투스 관련
     private static final UUID BT_MODULE_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
@@ -79,7 +79,7 @@ public class RegisterCardActivity extends AppCompatActivity {
 
         getCardName = findViewById(R.id.registerCardName); //입력한 카드 별칭
 
-        getRFIDCard = "1234567890"; //임의의 rfid card (추후 수정)
+        //getRFIDCard = "1234567890"; //임의의 rfid card (추후 수정)
 
         //블루투스 관련
         mBluetoothStatus = (TextView)findViewById(R.id.bluetooth_status); //블루투스 상태
@@ -176,6 +176,7 @@ public class RegisterCardActivity extends AppCompatActivity {
             });
         }
 
+
         //등록하기 버튼
         Button CardInfoBtn = findViewById(R.id.registerCardInfo);
         CardInfoBtn.setOnClickListener(new View.OnClickListener() {
@@ -186,7 +187,9 @@ public class RegisterCardActivity extends AppCompatActivity {
                 try {
                     JSONArray jsonArray = new JSONArray();
                     String cardName_input = getCardName.getText().toString();
-                    String cardRFID_input = getRFIDCard.toString();
+                    getRFIDCard =findViewById(R.id.registerCardRFID);
+                    String cardRFID_input = getRFIDCard.getText().toString();
+                    cardRFID_input = cardRFID_input.split("\n")[0];
 
                     //카드 별칭
                     if (cardName_input != null && !cardName_input.equals("")) {
