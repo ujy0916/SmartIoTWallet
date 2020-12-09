@@ -4,31 +4,22 @@
 #include <WiFiNINA.h> // change to #include <WiFi101.h> for MKR1000
 
 #include "arduino_secrets.h"
-
-//RFID 추가
-#include <SPI.h>
-#include <MFRC522.h>
-
-#define RST_PIN         6           // Configurable, see typical pin layout above
-#define SS_PIN           7           // Configurable, see typical pin layout above
-
 #define btn           11 //버튼
-// 라이브러리 생성
-MFRC522 rfid(SS_PIN, RST_PIN); // Instance of the class
 
-MFRC522::MIFARE_Key key; 
 
-//이전 ID와 비교하기위한 변수
-byte nuidPICC[4];
-
-int state = 0; //지갑 상태(OPEN/CLOSE)
-//int dec = 0; //rfid값.
-int dec = 1833823216; //임의의 rfid값. 블루투스 연결할 경우 필히 삭제할 것!!!!!
-int count = 3; //지갑 닫힌 시간
+int state = 1; //지갑 상태(OPEN/CLOSE)
+//int count = 2; //지갑 닫힌 시간
 int control = 1; //1은 활성화, 0은 비활성화
+int dec = 0; //rfid 값
+
+int rfid1 = 253832; //네이버페이
+int rfid2 = 247213677; //카카오뱅크
+int rfid3 = 183177411; //신한신용
+int rfid4 = 21116512; //국민체크
+int rfid5 =21511121; //K뱅크 
+int rfid6 =10000; //K뱅크 
 
 #include <ArduinoJson.h>
-//#include "Led.h"
 
 /////// Enter your sensitive data in arduino_secrets.h
 const char ssid[]        = SECRET_SSID;
@@ -40,24 +31,15 @@ WiFiClient    wifiClient;            // Used for the TCP socket connection
 BearSSLClient sslClient(wifiClient); // Used for SSL/TLS connection, integrates with ECC508
 MqttClient    mqttClient(sslClient);
 
-unsigned long lastMillis = 0;
+//unsigned long lastMillis = 0;
 
 
 void setup() {
   Serial.begin(115200);
+  delay(5000);
   while (!Serial);
 
-  SPI.begin(); // SPI 시작
-  rfid.PCD_Init(); // RFID 시작
   pinMode(btn, INPUT); //버튼
-
-  //초기 키 ID 초기화
-  for (byte i = 0; i < 6; i++) {
-    key.keyByte[i] = 0xFF;
-  }
-
-  Serial.println(F("This code scan the MIFARE Classsic NUID."));
-  Serial.print(F("Using the following key:"));
 
 
   if (!ECCX08.begin()) {
@@ -85,24 +67,22 @@ void loop() {
   // poll for new MQTT messages and send keep alives
   mqttClient.poll();
 
+   char payload[512];
   // publish a message roughly every 5 seconds.
-  if (millis() - lastMillis > 5000) {
-    lastMillis = millis();
-    char payload[512];
 
-    //버튼
+  //버튼 
+    char i;
     if(digitalRead(btn) == HIGH){state = 1;} //OPEN
     else if(digitalRead(btn) == LOW){
-      delay(1000);
-      count--;
-    }
-    if (count == 0){
-      state = 0; //CLOSE
-      count = 3;
+      state = 0;
+      getRFID_Status(payload, '6');
     }
     
-    getRFID_Status(payload);
-    sendMessage(payload);
+    if (Serial.available() > 0) {
+      
+      i = Serial.read();
+      
+      getRFID_Status(payload, i);
   }
 }
 
@@ -146,8 +126,7 @@ void connectMQTT() {
   mqttClient.subscribe("$aws/things/MyMKRWiFi1010/shadow/update/delta");
 }
 
-void getRFID_Status(char* payload) {
-
+void getRFID_Status(char* payload, char i) {
   // rfid가 비활성화 모드일 경우, 카드를 읽지 않도록 한다.
   if ( control == 0 ) {
     Serial.print("[비활성]control: ");Serial.println(control);
@@ -156,63 +135,22 @@ void getRFID_Status(char* payload) {
 
   else{
     Serial.print("[활성]control: ");Serial.println(control);
-    // 카드가 인식되었다면 다음으로 넘어가고 아니면 더이상 
-    // 실행 안하고 리턴
-    if ( ! rfid.PICC_IsNewCardPresent()){
-      /* 
-       *  지갑이 닫히면 올라가도록하는 조건문
-       *  카드가 한 번도 찍히지 않은 상황에선 올라가지 않도록 함*/
-      if(dec != 0 && state == 0){
-        //Serial.print("state2:");Serial.println(state);
-        sprintf(payload,"{\"state\":{\"reported\":{\"RFID\":\"%d\",\"State\":\"%d\"}}}",dec,state);
-      }
-      
-      return;
-    }
-  
-    // ID가 읽혀졌다면 다음으로 넘어가고 아니면 더이상 
-    // 실행 안하고 리턴
-    if ( ! rfid.PICC_ReadCardSerial())
-      return;
-  
-     Serial.print(F("PICC type: "));
-  
-    //카드의 타입을 읽어온다.
-    MFRC522::PICC_Type piccType = rfid.PICC_GetType(rfid.uid.sak);
-  
-    //모니터에 출력
-    Serial.println(rfid.PICC_GetTypeName(piccType));
-  
-    // MIFARE 방식인지 확인하고 아니면 리턴
-    if (piccType != MFRC522::PICC_TYPE_MIFARE_MINI &&  
-      piccType != MFRC522::PICC_TYPE_MIFARE_1K &&
-      piccType != MFRC522::PICC_TYPE_MIFARE_4K) {
-      Serial.println(F("Your tag is not of type MIFARE Classic."));
-      return;
-    }
-    //모니터 출력
-    Serial.println(F("The NUID tag is:"));
-    String Dec = printDec(rfid.uid.uidByte, rfid.uid.size);
-    dec = Dec.toInt();
-    
-    sprintf(payload,"{\"state\":{\"reported\":{\"RFID\":\"%d\",\"State\":\"%d\"}}}",dec,state);
-  
-    // PICC 종료
-    rfid.PICC_HaltA();
-  
-    // 암호화 종료(?)
-    rfid.PCD_StopCrypto1();
+    if(state == 0){ //지갑이 닫혀있는 상황일 때, 지갑이 닫혔음을 알려줌.
+       dec=0;
+       sprintf(payload,"{\"state\":{\"reported\":{\"Card_rfid\":\"%d\",\"State\":\"%d\"}}}",dec,state);
+     }
+    else{
+    switch(i){
+      case '1': dec=rfid1; break;
+      case '2': dec=rfid2; break;
+      case '3': dec=rfid3; break;
+      case '4': dec=rfid4; break;
+      case '5': dec=rfid5; break;
+      } 
+      sprintf(payload,"{\"state\":{\"reported\":{\"Card_rfid\":\"%d\",\"State\":\"%d\"}}}",dec,state);
+     }
+     sendMessage(payload);
   }
-}
-
-//10진수로 변환하는 함수
-String printDec(byte *buffer, byte bufferSize) {
-  String Dec="";
-  for (byte i = 0; i < bufferSize; i++) {
-    Serial.print(buffer[i] < 0x10 ? " 0" : "");
-    Dec.concat(String(buffer[i], DEC));
-  }
-  return Dec;
 }
 
 
@@ -251,7 +189,7 @@ void onMessageReceived(int messageSize) {
   //    "version":391,
   //    "timestamp":1572784097,
   //    "state":{
-  //        "LED":"ON"
+  //        "LED":"ON" -->여기부분에 DISABLED 삽입
   //    },
   //    "metadata":{
   //        "LED":{
