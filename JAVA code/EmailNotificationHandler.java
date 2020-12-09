@@ -31,9 +31,9 @@ public class EmailNotificationHandler implements RequestHandler<Object, String> 
 	    String temperature = reported.getAsJsonObject().get("temperature").getAsString();
 	    double temp = Double.valueOf(temperature);
 
-	    final String AccessKey="AKIASR2I45YOJ75R4UUI";
-	    final String SecretKey="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";
-	    final String topicArn="arn:aws:sns:ap-northeast-2:175709679132:Lost_card_warning";
+	    final String AccessKey="";
+	    final String SecretKey="";
+	    final String topicArn="";
 
 	    BasicAWSCredentials awsCreds = new BasicAWSCredentials(AccessKey, SecretKey);  
 	    AmazonSNS sns = AmazonSNSClientBuilder.standard()
