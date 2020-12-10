@@ -23,4 +23,7 @@
 
 >>2-(2)-(1)카드 로그 조회
 >>>등록된 카드 List 중에서 로그를 조회하고 싶은 카드를 고르면 CardLogActivity로 넘어가게된다. 달력을 통해 조회 시작 날짜와 조회 종료 날짜를 선택하고 조회버튼을 누르면 GetLog클래스(GetRequest클래스 확장)로 이동하여 조회를 시작한다.(API : /devices/{device}/value의 GET 메소드-GetRFIDLogFunction)
+
+>2-(3)RFID 모듈 비활성화
+>>메인 화면에서 비활성화 버튼을 누르면 버튼 위의 글씨가 바뀌고, tag부분에 disabled 값을 넣어 UpdateShadowDesired클래스로 이동한다.(API : /devices/{device}의 PUT 메소드-UpdateDevice2Function).
    
