@@ -46,9 +46,9 @@ public class UpdateAndNotifyHandler implements RequestHandler<Document, String> 
     public String handleRequest(Document document, Context context) {
         this.initDynamoDbClient();
         
-        final String AccessKey="AKIASR2I45YOA7WMWYPO";
-       final String SecretKey="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";
-       final String topicArn="arn:aws:sns:ap-northeast-2:175709679132:Lost_card_warning";
+        final String AccessKey="";
+       final String SecretKey="";
+       final String topicArn="";
 
        BasicAWSCredentials awsCreds = new BasicAWSCredentials(AccessKey, SecretKey);  
        AmazonSNS sns = AmazonSNSClientBuilder.standard()
