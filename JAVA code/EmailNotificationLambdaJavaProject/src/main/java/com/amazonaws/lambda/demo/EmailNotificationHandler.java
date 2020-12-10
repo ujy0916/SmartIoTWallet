@@ -37,9 +37,9 @@ public class EmailNotificationHandler implements RequestHandler<Object, String> 
 	    String test = reported.getAsJsonObject().get("DISABLED").getAsString();
 	    String test_abled = String.valueOf(test);
 
-	    final String AccessKey="AKIASR2I45YOJ75R4UUI";
-	    final String SecretKey="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";
-	    final String topicArn="arn:aws:sns:ap-northeast-2:175709679132:Lost_card_warning";
+	    final String AccessKey="";
+	    final String SecretKey="";
+	    final String topicArn="";
 
 	    BasicAWSCredentials awsCreds = new BasicAWSCredentials(AccessKey, SecretKey);  
 	    AmazonSNS sns = AmazonSNSClientBuilder.standard()
