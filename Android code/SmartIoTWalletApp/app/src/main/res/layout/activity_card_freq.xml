@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    tools:context="com.hansung.android.smartiotwalletapp.ui.CardLogActivity">
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="카드 사용 빈도 조회"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/start_month_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="조회시작 달 선택" />
+
+        <TextView
+            android:id="@+id/textView_month1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="yyyy-mm" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/freq_start_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="빈도 조회 시작" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <ListView
+            android:id="@+id/cardlist"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#ff99ccee"
+            android:textColor="#ff0000ff"
+            android:textSize="12dp"
+            android:layout_weight="2"></ListView>
+
+        <ListView
+            android:id="@+id/cardfreqlist"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#ff99ccee"
+            android:textColor="#ff0000ff"
+            android:textSize="12dp"
+            android:layout_weight="2"></ListView>
+
+
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/cardname"
+        android:layout_gravity="center_horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="카드 사용 빈도 조회"/>
+
+
+
+
+
+</LinearLayout>

@@ -8,7 +8,6 @@
 
 
 int state = 1; //지갑 상태(OPEN/CLOSE)
-//int count = 2; //지갑 닫힌 시간
 int control = 1; //1은 활성화, 0은 비활성화
 int dec = 0; //rfid 값
 
@@ -16,8 +15,7 @@ int rfid1 = 253832; //네이버페이
 int rfid2 = 247213677; //카카오뱅크
 int rfid3 = 183177411; //신한신용
 int rfid4 = 21116512; //국민체크
-int rfid5 =21511121; //K뱅크 
-int rfid6 =10000; //K뱅크 
+int rfid5 =21511121; //K뱅크   
 
 #include <ArduinoJson.h>
 
@@ -137,7 +135,8 @@ void getRFID_Status(char* payload, char i) {
     Serial.print("[활성]control: ");Serial.println(control);
     if(state == 0){ //지갑이 닫혀있는 상황일 때, 지갑이 닫혔음을 알려줌.
        dec=0;
-       sprintf(payload,"{\"state\":{\"reported\":{\"Card_rfid\":\"%d\",\"State\":\"%d\"}}}",dec,state);
+       sprintf(payload,"{\"state\":{\"reported\":{\"RFID\":\"%d\",\"State\":\"%d\"}}}",dec,state);
+       delay(10000);
      }
     else{
     switch(i){
@@ -147,7 +146,7 @@ void getRFID_Status(char* payload, char i) {
       case '4': dec=rfid4; break;
       case '5': dec=rfid5; break;
       } 
-      sprintf(payload,"{\"state\":{\"reported\":{\"Card_rfid\":\"%d\",\"State\":\"%d\"}}}",dec,state);
+      sprintf(payload,"{\"state\":{\"reported\":{\"RFID\":\"%d\",\"State\":\"%d\"}}}",dec,state);
      }
      sendMessage(payload);
   }
@@ -211,7 +210,7 @@ void onMessageReceived(int messageSize) {
     Serial.print("DISABLED:");Serial.println(DisAbled);
     control = 1;
     
-  } //else if (strcmp(DisAbled,"Disabled")==0) {
+  }
   else {
     Serial.print("DISABLED:");Serial.println(DisAbled);
     control = 0;
